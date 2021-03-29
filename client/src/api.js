@@ -26,7 +26,6 @@ const sendHook = (eventType) => {
 
       axios.post(url, payload)
         .then(response => {
-          console.log("response from subscriber is ...");
           console.log(response.data);
           console.log(response.status);
         })
