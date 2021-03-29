@@ -19,7 +19,7 @@ h3 {
 }
 
 ul {
-  margin-bottom: 20px;
+  margin: 20px 0;
   text-align: left;
 }
 
@@ -34,17 +34,19 @@ label {
 
 form {
   margin: 30px;
+  text-align: left;
+}
+
+button,
+input[type="submit"] {
+  font-size: 20px;
+  padding: 10px;
 }
 
 input[type="text"] {
   width: 100%;
   display: block;
   font-size: 18px;
-  padding: 10px;
-}
-
-input[type="submit"] {
-  font-size: 20px;
   padding: 10px;
 }
 
@@ -60,21 +62,17 @@ input[type="submit"] {
   border: 2px solid black;
 }
 
-#hook-button-container ul,
-#event-list {
+#event-creation-list,
+#event-selection-list {
   display: flex;
   justify-content: space-around;
 }
 
-#register-endpoint-container form {
-  text-align: left;
-}
-
-#event-list li {
+#event-selection-list li {
   padding: 10px 0;
 }
 
-#event-list input {
+#event-selection-list input {
   margin-left: 10px;
   height: 18px;
   width: 18px;
@@ -89,6 +87,7 @@ input[type="submit"] {
 }
 
 #existing-endpoint-container div {
+  display: inline-block;
   flex: 50%;
 }
 
