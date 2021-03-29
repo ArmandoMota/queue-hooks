@@ -39,8 +39,8 @@ form {
 input[type="text"] {
   width: 100%;
   display: block;
-  height: 40px;
   font-size: 18px;
+  padding: 10px;
 }
 
 input[type="submit"] {
