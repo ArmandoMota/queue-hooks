@@ -16,7 +16,9 @@ function App() {
 
   const handleNewHook = (e) => {
     e.preventDefault();
-    api.sendHook(e.target.value);
+    const eventId = e.target.value;
+    const payload = `${e.target.name} was triggered`;
+    api.sendMessage(eventId, payload);
   };
 
   const handleNewSubscription = (e) => {

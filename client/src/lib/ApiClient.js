@@ -16,8 +16,10 @@ const addSubscription = (newSubscription, callback) => {
     .catch(error => console.log(error));
 };
 
-const sendHook = (eventId) => {
-  axios.post('/api/v1/msgs')
+const sendMessage = (eventId, payload) => {
+  const msgInfo = { eventId, payload };
+  
+  axios.post('/api/v1/msgs', msgInfo)
     .then(unwrapData)
     .then(data => console.log(data))
     .catch(error => console.log(error));
@@ -39,4 +41,4 @@ const sendHook = (eventId) => {
   // });
 };
 
-export default { getSubscriptions, addSubscription, sendHook };
+export default { getSubscriptions, addSubscription, sendMessage };
