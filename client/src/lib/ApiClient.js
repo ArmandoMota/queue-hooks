@@ -23,22 +23,6 @@ const sendMessage = (eventId, payload) => {
     .then(unwrapData)
     .then(data => console.log(data))
     .catch(error => console.log(error));
-
-  // endpoints.forEach(({ url, subscribedTo }) => {
-  //   if (subscribedTo.includes(eventType)) {
-  //     console.log(`sending hook to ${url} for event ${eventType}`);
-  //     const payload = JSON.stringify({ data: `Event ${eventType} occurred!`});
-
-  //     axios.post(url, payload)
-  //       .then(response => {
-  //         console.log(response.data);
-  //         console.log(response.status);
-  //       })
-  //       .catch(error => {
-  //         console.log(error);
-  //       });
-  //   }
-  // });
 };
 
 export default { getSubscriptions, addSubscription, sendMessage };

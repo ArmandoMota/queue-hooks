@@ -57,7 +57,7 @@ input[type="text"] {
 #hook-button-container,
 #register-endpoint-container,
 #existing-endpoint-container {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 20px auto;
   border: 2px solid black;
 }
