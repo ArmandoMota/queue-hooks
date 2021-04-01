@@ -23,3 +23,11 @@ class Queue {
     return this.messages.length;
   }
 }
+
+const monitorOutgoingQueue = () => {
+  setInterval()
+}
+
+const queue = new Queue();
+
+exports.queue = queue;
