@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
 const Subscription = ({ sub }) => {
-  const subNames = sub.listeningFor.map(event => event.description);
-  const eventString = subNames.join(', ') || '';
+  const topicNames = sub.topics.map((topic) => topic.name);
+  const eventString = topicNames.join(", ") || "";
 
   return (
     <li>

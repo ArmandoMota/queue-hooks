@@ -1,28 +1,29 @@
-import axios from 'axios';
+import axios from "axios";
 
 const unwrapData = (response) => response.data;
 
 const getSubscriptions = (setSubscriptions) => {
-  axios.get('/api/v1/subs')
+  axios
+    .get("/api/v1/subs")
     .then(unwrapData)
     .then(({ subs }) => setSubscriptions(subs))
-    .catch(error => console.log(error));
+    .catch((error) => console.log(error));
 };
 
 const addSubscription = (newSubscription, callback) => {
-  axios.post('/api/v1/subs', newSubscription)
+  axios
+    .post("/api/v1/subs", newSubscription)
     .then(unwrapData)
     .then(({ sub }) => callback(sub))
-    .catch(error => console.log(error));
+    .catch((error) => console.log(error));
 };
 
-const sendMessage = (eventId, payload) => {
-  const msgInfo = { eventId, payload };
-  
-  axios.post('/api/v1/msgs', msgInfo)
+const notifySubscribers = (newEvent) => {
+  axios
+    .post("/api/v1/msgs", newEvent)
     .then(unwrapData)
-    .then(data => console.log(data))
-    .catch(error => console.log(error));
+    .then((data) => console.log(data))
+    .catch((error) => console.log(error));
 };
 
-export default { getSubscriptions, addSubscription, sendMessage };
+export default { getSubscriptions, addSubscription, notifySubscribers };

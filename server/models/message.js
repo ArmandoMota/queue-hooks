@@ -1,15 +1,18 @@
-const mongoose = require('mongoose');
-const Event = require('./event');
+const mongoose = require("mongoose");
+const Topic = require("./topic");
+const Subscription = require("./subscription");
 
 const Schema = mongoose.Schema;
 
 const MessageSchema = new Schema({
+  topic: { type: Schema.Types.ObjectId, ref: Topic },
+  firstDelivery: Date,
+  latestDelivery: Date,
+  deliveryAttempt: { type: Number, default: 1 },
+  deliveryState: { type: Boolean, default: false },
+  subscriptionId: { type: Schema.Types.ObjectId, ref: Subscription },
+  affectedResource: String,
   payload: Schema.Types.Mixed,
-  eventId: { type: Schema.Types.ObjectId, ref: Event },
-  createdAt: { type: Date, default: Date.now },
-  receivedAt: Date,
-  lastAttempted: { type: Date, default: Date.now },
-  attemptCount: { type: Number, default: 1 },
 });
 
 MessageSchema.set("toJSON", {
@@ -20,6 +23,6 @@ MessageSchema.set("toJSON", {
   },
 });
 
-const Message = mongoose.model('Message', MessageSchema);
+const Message = mongoose.model("Message", MessageSchema);
 
 module.exports = Message;

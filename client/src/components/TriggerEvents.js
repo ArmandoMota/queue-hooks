@@ -1,16 +1,16 @@
-import React from 'react';
-import api from '../lib/ApiClient';
+import React from "react";
+import api from "../lib/ApiClient";
 
 const TriggerEvents = () => {
-  
   const handleNewHook = (e) => {
     e.preventDefault();
-    const eventId = e.target.value;
-    const payload = {
-      type: e.target.name,
-      msg: `${e.target.name} was triggered`,
+    const newEvent = {
+      topic: e.target.value,
+      affectedResource: e.target.name,
+      payload: { msg: `Button "${e.target.name}" was pressed.` },
     };
-    api.sendMessage(eventId, payload);
+
+    api.notifySubscribers(newEvent);
   };
 
   return (
@@ -18,20 +18,44 @@ const TriggerEvents = () => {
       <h2>Trigger an event by pressing a button below:</h2>
       <ul id="event-creation-list">
         <li>
-          <button type="button" name="Button 1" onClick={handleNewHook}
-            value="6063c2a4d0eda700b38638ae">Event 1</button>
+          <button
+            type="button"
+            name="Event 1 button pressed"
+            onClick={handleNewHook}
+            value="606685fbc0e76992736a8903"
+          >
+            Event 1
+          </button>
         </li>
         <li>
-          <button type="button" name="Button 2" onClick={handleNewHook}
-            value="6063c38fbca40e010c6e0d6a">Event 2</button>
+          <button
+            type="button"
+            name="Event 2 button pressed"
+            onClick={handleNewHook}
+            value="6066863fc0e76992736a8904"
+          >
+            Event 2
+          </button>
         </li>
         <li>
-          <button type="button" name="Button 3" onClick={handleNewHook}
-            value="6063c3caab1a100140cda4c8">Event 3</button>
+          <button
+            type="button"
+            name="Event 3 button pressed"
+            onClick={handleNewHook}
+            value="60668643c0e76992736a8905"
+          >
+            Event 3
+          </button>
         </li>
         <li>
-          <button type="button" name="Button 4" onClick={handleNewHook}
-            value="6063c3ceab1a100140cda4c9">Event 4</button>
+          <button
+            type="button"
+            name="Event 4 button pressed"
+            onClick={handleNewHook}
+            value="60668646c0e76992736a8906"
+          >
+            Event 4
+          </button>
         </li>
       </ul>
     </div>
