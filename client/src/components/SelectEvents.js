@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { createSub } from "../actions/subActions";
 import api from "../lib/ApiClient";
 
 const SelectEvents = ({ addToSubscriptions }) => {
+  const [endpointUrl, setEndpointUrl] = useState("");
+  const dispatch = useDispatch();
   const handleNewSubscription = (e) => {
     e.preventDefault();
     const parentForm = e.target;
     const formInputs = Array.from(parentForm.elements);
-    const newSubscription = { listeningFor: [] };
+    const newSubscription = { url: endpointUrl, listeningFor: [] };
 
     formInputs.forEach((element) => {
-      if (element.type === "text") {
-        newSubscription.url = element.value;
-      } else if (element.name === "retry_automatically" && element.checked) {
+      if (element.name === "retry_automatically" && element.checked) {
         newSubscription.automaticRetries = true;
       } else if (element.type === "checkbox" && element.checked) {
         newSubscription.listeningFor.push(element.value);
       }
     });
 
-    api.addSubscription(newSubscription, (newSub) =>
-      addToSubscriptions(newSub)
-    );
+    dispatch(createSub(newSubscription, () => setEndpointUrl("")));
+
     parentForm.reset();
   };
 
@@ -35,6 +36,8 @@ const SelectEvents = ({ addToSubscriptions }) => {
           type="text"
           id="endpoint"
           name="endpoint"
+          value={endpointUrl}
+          onChange={(e) => setEndpointUrl(e.target.value)}
           placeholder="https://yourwebsite.com/yourendpoint"
         />
         <h3>Select which events you'd like us to notify you about:</h3>

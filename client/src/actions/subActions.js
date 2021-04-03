@@ -9,11 +9,15 @@ export const createSubRequest = () => {
   return { type: types.CREATE_SUB_REQUEST };
 };
 
-export const createSub = (data) => {
+export const createSub = (data, callback) => {
   return (dispatch) => {
     dispatch(createSubRequest());
     api.addSubscription(data, (newSub) => {
       dispatch(createSubSuccess(newSub));
+
+      if (callback) {
+        callback();
+      }
     });
   };
 };
