@@ -1,17 +1,21 @@
-import React from 'react';
-import './App.css';
-import api from './lib/ApiClient';
-import { useEffect, useState } from 'react';
-import TriggerEvents from './components/TriggerEvents';
-import SelectEvents from './components/SelectEvents';
-import Subscriptions from './components/Subscriptions';
+import React from "react";
+import "./App.css";
+// import api from "./lib/ApiClient";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { getSubs } from "./actions/subActions";
+import TriggerEvents from "./components/TriggerEvents";
+import SelectEvents from "./components/SelectEvents";
+import Subscriptions from "./components/Subscriptions";
 
 function App() {
   const [subscriptions, setSubscriptions] = useState([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    api.getSubscriptions(setSubscriptions);
-  }, []);
+    dispatch(getSubs());
+    // api.getSubscriptions(setSubscriptions);
+  }, [dispatch]);
 
   const addToSubscriptions = (newSubscription) => {
     setSubscriptions([...subscriptions, newSubscription]);

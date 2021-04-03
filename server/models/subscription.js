@@ -1,13 +1,15 @@
-const mongoose = require('mongoose');
-const Event = require('./event');
+const mongoose = require("mongoose");
+const Event = require("./event");
 
 const Schema = mongoose.Schema;
 
 const SubscriptionSchema = new Schema({
   url: { type: String, required: true },
-  listeningFor: [
-    { type: Schema.Types.ObjectId, ref: 'Event'},
-  ],
+  listeningFor: [{ type: Schema.Types.ObjectId, ref: "Event" }],
+  automaticRetries: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 SubscriptionSchema.set("toJSON", {
@@ -18,6 +20,6 @@ SubscriptionSchema.set("toJSON", {
   },
 });
 
-const Subscription = mongoose.model('Subscription', SubscriptionSchema);
+const Subscription = mongoose.model("Subscription", SubscriptionSchema);
 
 module.exports = Subscription;

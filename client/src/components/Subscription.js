@@ -1,16 +1,16 @@
-import React from 'react';
+import React from "react";
 
 const Subscription = ({ sub }) => {
-  const subNames = sub.listeningFor.map(event => event.description);
-  const eventString = subNames.join(', ') || '';
+  const subNames = sub.listeningFor.map((event) => event.description);
+  const eventString = subNames.join(", ") || "";
 
   return (
     <li>
-      <div htmlclass="url">
+      <div className="url">
         <h3>Url:</h3>
         <p>{sub.url}</p>
       </div>
-      <div htmlclass="events-followed">
+      <div className="events-followed">
         <h3>Events subscribed to:</h3>
         <p>{eventString}</p>
       </div>
