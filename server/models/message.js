@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Topic = require("./topic");
 const Subscription = require("./subscription");
+const Event = require("./event");
 
 const Schema = mongoose.Schema;
 
@@ -11,6 +12,7 @@ const MessageSchema = new Schema({
   deliveryAttempt: { type: Number, default: 1 },
   deliveryState: { type: Boolean, default: false },
   subscriptionId: { type: Schema.Types.ObjectId, ref: Subscription },
+  eventId: { type: Schema.Types.ObjectId, ref: Event },
   affectedResource: String,
   payload: Schema.Types.Mixed,
 });
