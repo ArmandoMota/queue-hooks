@@ -8,23 +8,24 @@ const getMessages = (req, res, next) => {
 };
 
 const createMessages = (req, res, next) => {
-  const data = {
+  const basicData = {
     topic: req.event.topic,
+    deliveryAttempt: 1,
+    deliveryState: false,
     eventId: req.event.id,
     affectedResource: req.event.affectedResource,
     payload: req.event.payload,
   };
 
+  console.log(`sending message to ${req.subscribers.length} subscriber(s)...`);
+
   req.subscribers.forEach(({ id, url }) => {
-    Message.create({ ...data, subscriptionId: id })
-      .then((msg) => {
-        msg.url = url;
-        queue.push(msg, (error) => {
-          console.log("error while adding message ${msg._id} to message queue");
-          // handle later - what if pushing onto message queue fails?
-        });
-      })
-      .catch((error) => console.log(error));
+    const msgData = { ...basicData, url, subscriptionId: id };
+
+    queue.push(msgData, (error) => {
+      console.log("error while adding message to message queue");
+      // handle later - what if pushing onto message queue fails?
+    });
   });
 
   res.sendStatus(200);

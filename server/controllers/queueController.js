@@ -4,9 +4,10 @@ const priorityQueue = require("async/priorityQueue");
 const Message = require("../models/message");
 
 const postConfig = { headers: { "Content-Type": "application/json" } };
+
 let queue;
 
-const initializePriorityQueue = async () => {
+const initializePriorityQueue = () => {
   console.log("Initializing priority queue");
   queue = priorityQueue(worker, 10);
 };
@@ -15,61 +16,93 @@ const push = (rawEvent, callback) => {
   queue.push(rawEvent, callback);
 };
 
-const worker = (msg, callback) => {
-  const timeout = 2 ** msg.deliveryAttempt * 1000;
+const pushCallback = (msgData) => {
+  console.log(
+    `error while adding message ${msgData.id || ""} back into message queue`
+  );
+};
+
+const worker = (msgData, callback) => {
+  const timeout = 2 ** msgData.deliveryAttempt * 1000;
 
   setTimeout(() => {
-    console.log(`sending message ${msg._id}`);
-
     axios
-      .post(msg.url, msg.payload, postConfig)
-      .then((response) => {
-        handleSuccessfulDelivery(msg);
-      })
-      .catch((error) => {
-        handleFailedDelivery(msg);
-      });
+      .post(msgData.url, msgData.payload, postConfig)
+      .then(() => handleSuccessfulDelivery(msgData))
+      .catch(() => handleFailedDelivery(msgData));
   }, timeout);
 };
 
-const handleSuccessfulDelivery = async (msg) => {
-  console.log(`consumer confirmed receipt of message ${msg._id}`);
+const handleSuccessfulDelivery = (msgData) => {
+  msgData.latestDelivery = new Date();
+  msgData.deliveryState = true;
 
-  const updates = {
-    latestDelivery: new Date(),
-    deliveryState: true,
-  };
-
-  if (msg.deliveryAttempt === 1) {
-    updates.firstDelivery = updates.latestDelivery;
+  if (msgData.deliveryAttempt === 1) {
+    msgData.firstDelivery = msgData.latestDelivery;
   }
 
-  await Message.findByIdAndUpdate(msg._id, updates, { new: true });
+  const { url, ...validMsgData } = msgData;
+  updateDatabaseOnSuccess(validMsgData);
 };
 
-const handleFailedDelivery = (msg) => {
-  console.log(`sending message ${msg._id} failed, trying again`);
-  if (msg.deliveryAttempt === 5) {
-    console.log(`Reached max of 5 retries for message ${msg._id}`);
-    return;
+const updateDatabaseOnSuccess = (msgData) => {
+  if (msgData.deliveryAttempt === 1) {
+    Message.create(msgData)
+      .then((msg) => console.log(`message ${msg._id} confirmed received`))
+      .catch((error) => console.log(error));
+  } else {
+    const props = {
+      latestDelivery: msgData.latestDelivery,
+      deliveryState: msgData.deliveryState,
+    };
+
+    Message.findByIdAndUpdate(msgData.id, props, { new: true })
+      .then((msg) => console.log(`message ${msg._id} confirmed received`))
+      .catch((error) => console.log(error));
+  }
+};
+
+const handleFailedDelivery = (msgData) => {
+  msgData.latestDelivery = new Date();
+  msgData.deliveryAttempt = msgData.deliveryAttempt + 1;
+
+  if (msgData.deliveryAttempt === 2) {
+    msgData.firstDelivery = msgData.latestDelivery;
   }
 
-  const updates = {
-    latestDelivery: new Date(),
-    deliveryAttempt: msg.deliveryAttempt + 1,
-  };
+  const { url, ...validMsgData } = msgData;
+  updateDatabaseOnFail(validMsgData);
+};
 
-  Message.findByIdAndUpdate(msg._id, updates, { new: true })
-    .then((updatedMsg) => {
-      updatedMsg.url = msg.url;
+const updateDatabaseOnFail = (msgData) => {
+  if (msgData.deliveryAttempt === 2) {
+    Message.create(msgData)
+      .then((msg) => {
+        console.log(`message ${msg._id} failed, retrying...`);
+        msgData.id = msg._id;
+        queue.push(msgData, pushCallback);
+      })
+      .catch((error) => console.log(error));
+  } else {
+    const updates = { latestDelivery: msgData.latestDelivery };
 
-      queue.push(updatedMsg, (error) => {
-        console.log(
-          "error while adding message ${msg._id} back into message queue"
-        );
-      });
-    })
-    .catch((error) => console.log(error));
+    if (msgData.deliveryAttempt <= 5) {
+      updates.deliveryAttempt = msgData.deliveryAttempt;
+    }
+
+    Message.findByIdAndUpdate(msgData.id, updates, { new: true })
+      .then(() => {
+        if (msgData.deliveryAttempt <= 5) {
+          console.log(`message ${msgData.id} failed, retrying...`);
+          queue.push(msgData, pushCallback);
+        } else {
+          console.log(
+            `Reached max of 5 retries for message ${msgData.id}.  Ending retries.`
+          );
+        }
+      })
+      .catch((error) => console.log(error));
+  }
 };
 
 exports.initializePriorityQueue = initializePriorityQueue;
