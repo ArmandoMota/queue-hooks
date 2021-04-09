@@ -3,7 +3,7 @@ const priorityQueue = require("async/priorityQueue");
 const Message = require("../models/message");
 
 const MAX_RETRY_ATTEMPTS = 5;
-const postConfig = {
+const defaultPostConfig = {
   headers: { "Content-Type": "application/json" },
   timeout: 5000,
   maxRedirects: 0,
@@ -28,11 +28,12 @@ const pushCallback = (msgData) => {
 
 const worker = (msgData, callback) => {
   const timeout = 2 ** msgData.deliveryAttempt * 1000;
-  postConfig.headers["Event-Type"] = msgData.topic;
+  const config = { ...defaultPostConfig, "event-type": msgData.topic };
+  msgData.payload.deliveryAttempt = msgData.deliveryAttempt;
 
   setTimeout(() => {
     axios
-      .post(msgData.url, msgData.payload, postConfig)
+      .post(msgData.url, msgData.payload, config)
       .then((res) => handleSuccessfulDelivery(msgData, res))
       .catch((res) => handleFailedDelivery(msgData, res));
   }, timeout);

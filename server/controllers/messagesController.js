@@ -14,8 +14,17 @@ const createMessages = (req, res, next) => {
     deliveryState: false,
     eventId: req.event.id,
     affectedResource: req.event.affectedResource,
-    payload: req.event.payload,
   };
+
+  const payload = {
+    ...req.event.payload,
+    topic: basicData.topic,
+    deliveryAttempt: basicData.deliveryAttempt,
+    eventId: basicData.eventId,
+    affectedResource: basicData.affectedResource,
+  };
+
+  basicData.payload = payload;
 
   console.log(`sending message to ${req.subscribers.length} subscriber(s)...`);
 
