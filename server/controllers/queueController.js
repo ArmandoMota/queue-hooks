@@ -28,7 +28,8 @@ const pushCallback = (msgData) => {
 
 const worker = (msgData, callback) => {
   const timeout = 2 ** msgData.deliveryAttempt * 1000;
-  const config = { ...defaultPostConfig, "event-type": msgData.topic };
+  const config = { ...defaultPostConfig };
+  config.headers["Team4hook-Event-Id"] = msgData.topic;
   msgData.payload.deliveryAttempt = msgData.deliveryAttempt;
 
   setTimeout(() => {
