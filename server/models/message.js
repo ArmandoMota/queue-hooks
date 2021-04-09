@@ -15,6 +15,8 @@ const MessageSchema = new Schema({
   eventId: { type: Schema.Types.ObjectId, ref: Event },
   affectedResource: String,
   payload: Schema.Types.Mixed,
+  requestData: Schema.Types.Mixed,
+  responseData: Schema.Types.Mixed,
 });
 
 MessageSchema.set("toJSON", {

@@ -1,9 +1,13 @@
 const axios = require("axios");
-const Subscription = require("../models/subscription");
 const priorityQueue = require("async/priorityQueue");
 const Message = require("../models/message");
 
-const postConfig = { headers: { "Content-Type": "application/json" } };
+const MAX_RETRY_ATTEMPTS = 5;
+const postConfig = {
+  headers: { "Content-Type": "application/json" },
+  timeout: 5000,
+  maxRedirects: 0,
+};
 
 let queue;
 
@@ -24,85 +28,110 @@ const pushCallback = (msgData) => {
 
 const worker = (msgData, callback) => {
   const timeout = 2 ** msgData.deliveryAttempt * 1000;
+  postConfig.headers["Event-Type"] = msgData.topic;
 
   setTimeout(() => {
     axios
       .post(msgData.url, msgData.payload, postConfig)
-      .then(() => handleSuccessfulDelivery(msgData))
-      .catch(() => handleFailedDelivery(msgData));
+      .then((res) => handleSuccessfulDelivery(msgData, res))
+      .catch((res) => handleFailedDelivery(msgData, res));
   }, timeout);
 };
 
-const handleSuccessfulDelivery = (msgData) => {
-  msgData.latestDelivery = new Date();
-  msgData.deliveryState = true;
-
-  if (msgData.deliveryAttempt === 1) {
-    msgData.firstDelivery = msgData.latestDelivery;
-  }
-
+const handleSuccessfulDelivery = (msgData, res) => {
   const { url, ...validMsgData } = msgData;
-  updateDatabaseOnSuccess(validMsgData);
+  const { responseData, requestData } = extractRequestAndResponse(res);
+
+  const newProps = {
+    requestData,
+    responseData,
+    latestDelivery: new Date(),
+    deliveryState: true,
+  };
+
+  updateDatabaseOnSuccess(validMsgData, newProps);
 };
 
-const updateDatabaseOnSuccess = (msgData) => {
+const updateDatabaseOnSuccess = (msgData, newProps) => {
   if (msgData.deliveryAttempt === 1) {
+    msgData.firstDelivery = msgData.latestDelivery;
+    msgData = { ...msgData, ...newProps };
+
     Message.create(msgData)
       .then((msg) => console.log(`message ${msg._id} confirmed received`))
       .catch((error) => console.log(error));
   } else {
-    const props = {
-      latestDelivery: msgData.latestDelivery,
-      deliveryState: msgData.deliveryState,
-    };
-
-    Message.findByIdAndUpdate(msgData.id, props, { new: true })
+    Message.findByIdAndUpdate(msgData.id, newProps, { new: true })
       .then((msg) => console.log(`message ${msg._id} confirmed received`))
       .catch((error) => console.log(error));
   }
 };
 
-const handleFailedDelivery = (msgData) => {
-  msgData.latestDelivery = new Date();
-  msgData.deliveryAttempt = msgData.deliveryAttempt + 1;
+const handleFailedDelivery = (msgData, res) => {
+  const { request, ...response } = res;
+  const { responseData, requestData } = extractRequestAndResponse(res);
 
-  if (msgData.deliveryAttempt === 2) {
-    msgData.firstDelivery = msgData.latestDelivery;
-  }
+  const newProps = {
+    responseData,
+    requestData,
+    latestDelivery: new Date(),
+    deliveryAttempt: msgData.deliveryAttempt + 1,
+  };
 
-  const { url, ...validMsgData } = msgData;
-  updateDatabaseOnFail(validMsgData);
+  msgData = { ...msgData, ...newProps };
+  updateDatabaseOnFail(msgData, newProps);
 };
 
-const updateDatabaseOnFail = (msgData) => {
+const updateDatabaseOnFail = (msgData, newProps) => {
   if (msgData.deliveryAttempt === 2) {
-    Message.create(msgData)
-      .then((msg) => {
-        console.log(`message ${msg._id} failed, retrying...`);
-        msgData.id = msg._id;
+    msgData.firstDelivery = msgData.latestDelivery;
+    createFailedMessage(msgData);
+  } else {
+    updateFailedMessage(msgData, newProps);
+  }
+};
+
+const createFailedMessage = (msgData) => {
+  const { url, ...validMsgData } = msgData;
+
+  Message.create(validMsgData)
+    .then((msg) => {
+      console.log(`message ${msg._id} failed, retrying...`);
+      msgData.id = msg._id;
+      queue.push(msgData, pushCallback);
+    })
+    .catch((error) => console.log(error));
+};
+
+const updateFailedMessage = (msgData, newProps) => {
+  if (newProps.deliveryAttempt > MAX_RETRY_ATTEMPTS) {
+    delete newProps.deliveryAttempt;
+  }
+
+  Message.findByIdAndUpdate(msgData.id, newProps, { new: true })
+    .then(() => {
+      if (msgData.deliveryAttempt <= MAX_RETRY_ATTEMPTS) {
+        console.log(`message ${msgData.id} failed, retrying...`);
         queue.push(msgData, pushCallback);
-      })
-      .catch((error) => console.log(error));
-  } else {
-    const updates = { latestDelivery: msgData.latestDelivery };
+      } else {
+        console.log(
+          `Reached max of 5 retries for message ${msgData.id}.  Ending retries.`
+        );
+      }
+    })
+    .catch((error) => console.log(error));
+};
 
-    if (msgData.deliveryAttempt <= 5) {
-      updates.deliveryAttempt = msgData.deliveryAttempt;
-    }
+const extractRequestAndResponse = (res) => {
+  const requestData = res.config;
+  const responseData = {
+    status: res.status,
+    statusText: res.statusText,
+    headers: res.headers,
+    data: res.data,
+  };
 
-    Message.findByIdAndUpdate(msgData.id, updates, { new: true })
-      .then(() => {
-        if (msgData.deliveryAttempt <= 5) {
-          console.log(`message ${msgData.id} failed, retrying...`);
-          queue.push(msgData, pushCallback);
-        } else {
-          console.log(
-            `Reached max of 5 retries for message ${msgData.id}.  Ending retries.`
-          );
-        }
-      })
-      .catch((error) => console.log(error));
-  }
+  return { responseData, requestData };
 };
 
 exports.initializePriorityQueue = initializePriorityQueue;

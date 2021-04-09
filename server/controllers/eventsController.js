@@ -3,6 +3,7 @@ const Event = require("../models/event");
 const createEvent = (req, res, next) => {
   Event.create(req.body)
     .then((event) => {
+      console.log(event);
       req.event = event;
       next();
     })
