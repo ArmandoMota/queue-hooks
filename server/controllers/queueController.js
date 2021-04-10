@@ -15,14 +15,6 @@ const push = (rawEvent, callback) => {
   queue.push(rawEvent, callback);
 };
 
-const pushCallback = (msgData) => {
-  console.log(
-    `error while adding message ${msgData.id || ""} back into message queue`
-  );
-};
-
-const calculateDelay = (msgData) => 2 ** msgData.deliveryAttempt * 1000;
-
 const worker = (msgData, callback) => {
   msgData.payload.deliveryAttempt = msgData.deliveryAttempt;
   const timeout = calculateDelay(msgData);
@@ -130,6 +122,14 @@ const updateFailedMessage = (msgData, newProps) => {
     })
     .catch((error) => console.log(error));
 };
+
+const pushCallback = (msgData) => {
+  console.log(
+    `error while adding message ${msgData.id || ""} back into message queue`
+  );
+};
+
+const calculateDelay = (msgData) => 2 ** msgData.deliveryAttempt * 1000;
 
 const extractRequestAndResponse = (res) => {
   const requestData = res.config;

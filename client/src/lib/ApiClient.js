@@ -2,11 +2,11 @@ import axios from "axios";
 
 const unwrapData = (response) => response.data;
 
-const getSubscriptions = (setSubscriptions) => {
+const getSubscriptions = (callback) => {
   axios
     .get("/api/v1/subs")
     .then(unwrapData)
-    .then(({ subs }) => setSubscriptions(subs))
+    .then(({ subs }) => callback(subs))
     .catch((error) => console.log(error));
 };
 
@@ -18,6 +18,14 @@ const addSubscription = (newSubscription, callback) => {
     .catch((error) => console.log(error));
 };
 
+const getTopics = (callback) => {
+  axios
+    .get("/api/v1/topics")
+    .then(unwrapData)
+    .then(({ topics }) => callback(topics))
+    .catch((error) => console.log(error));
+};
+
 const notifySubscribers = (newEvent) => {
   axios
     .post("/api/v1/msgs", newEvent)
@@ -26,4 +34,9 @@ const notifySubscribers = (newEvent) => {
     .catch((error) => console.log(error));
 };
 
-export default { getSubscriptions, addSubscription, notifySubscribers };
+export default {
+  getSubscriptions,
+  addSubscription,
+  notifySubscribers,
+  getTopics,
+};

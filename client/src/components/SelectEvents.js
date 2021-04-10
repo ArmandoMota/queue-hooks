@@ -1,7 +1,7 @@
 import React from "react";
 import api from "../lib/ApiClient";
 
-const SelectEvents = ({ addToSubscriptions }) => {
+const SelectEvents = ({ addToSubscriptions, topics }) => {
   const handleNewSubscription = (e) => {
     e.preventDefault();
     const parentForm = e.target;
@@ -37,46 +37,14 @@ const SelectEvents = ({ addToSubscriptions }) => {
         />
         <h3>Select which events you'd like us to notify you about:</h3>
         <ul id="event-selection-list">
-          <li>
-            <label>
-              Event 1
-              <input
-                type="checkbox"
-                name="event1-checkbox"
-                value="606685fbc0e76992736a8903"
-              />
-            </label>
-          </li>
-          <li>
-            <label>
-              Event 2
-              <input
-                type="checkbox"
-                name="event2-checkbox"
-                value="6066863fc0e76992736a8904"
-              />
-            </label>
-          </li>
-          <li>
-            <label>
-              Event 3
-              <input
-                type="checkbox"
-                name="event3-checkbox"
-                value="60668643c0e76992736a8905"
-              />
-            </label>
-          </li>
-          <li>
-            <label>
-              Event 4
-              <input
-                type="checkbox"
-                name="event4-checkbox"
-                value="60668646c0e76992736a8906"
-              />
-            </label>
-          </li>
+          {topics.map((topic) => (
+            <li>
+              <label>
+                {topic.name}
+                <input type="checkbox" name={topic.name} value={topic.id} />
+              </label>
+            </li>
+          ))}
         </ul>
         <input type="submit" value="Submit" />
       </form>
