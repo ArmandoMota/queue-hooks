@@ -13,15 +13,18 @@ const createMessages = (req, res, next) => {
   const basicData = extractMsgData(req);
 
   req.subscribers.forEach(({ id, url, secret }) => {
-    const msgData = { ...basicData, subscriptionId: id, url };
+    const msgData = { ...basicData, subscriptionId: id };
+    Message.create(msgData)
+      .then((msg) => (msgData.id = msg._id))
+      .catch((error) => console.log(error));
 
+    msgData.url = url;
     if (secret) {
       msgData.signature = calculateSignature(basicData.payload, secret);
     }
 
     queue.push(msgData, (error) => {
       console.log("error while adding message to message queue");
-      // handle later - what if pushing onto message queue fails?
     });
   });
 
