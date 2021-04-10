@@ -3,11 +3,6 @@ const priorityQueue = require("async/priorityQueue");
 const Message = require("../models/message");
 
 const MAX_RETRY_ATTEMPTS = 5;
-const defaultPostConfig = {
-  headers: { "Content-Type": "application/json" },
-  timeout: 5000,
-  maxRedirects: 0,
-};
 
 let queue;
 
@@ -26,11 +21,23 @@ const pushCallback = (msgData) => {
   );
 };
 
+const calculateDelay = (msgData) => 2 ** msgData.deliveryAttempt * 1000;
+
 const worker = (msgData, callback) => {
-  const timeout = 2 ** msgData.deliveryAttempt * 1000;
-  const config = { ...defaultPostConfig };
-  config.headers["Team4hook-Event-Id"] = msgData.topic;
   msgData.payload.deliveryAttempt = msgData.deliveryAttempt;
+  const timeout = calculateDelay(msgData);
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      "X-Team4hook-EventId": msgData.topic,
+    },
+    timeout: 5000,
+    maxRedirects: 0,
+  };
+
+  if (msgData.signature) {
+    config.headers["X-Team4Hook-Signature"] = msgData.signature;
+  }
 
   setTimeout(() => {
     axios

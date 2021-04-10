@@ -22,15 +22,18 @@ const getSubscriptions = (req, res, next) => {
     .catch((error) => console.log(error));
 };
 
-const getSubscriptionsByTopic = async (req, res, next) => {
-  const validSubscriptions = await Subscription.find({
-    topics: { $in: req.event.topic },
-  });
-  req.subscribers = validSubscriptions.map((sub) => ({
-    id: sub._id,
-    url: sub.url,
-  }));
-  next();
+const getSubscriptionsByTopic = (req, res, next) => {
+  Subscription.find({ topics: { $in: req.event.topic } }).then(
+    (subscriptions) => {
+      req.subscribers = subscriptions.map((sub) => ({
+        id: sub._id,
+        url: sub.url,
+        secret: sub.signingSecret,
+      }));
+
+      next();
+    }
+  );
 };
 
 exports.getSubscriptions = getSubscriptions;
