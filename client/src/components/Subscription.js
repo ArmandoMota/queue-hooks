@@ -1,6 +1,6 @@
 import React from "react";
 
-const Subscription = ({ sub }) => {
+const Subscription = ({ sub, handleClick }) => {
   const subNames = sub.listeningFor.map((event) => event.description);
   const eventString = subNames.join(", ") || "";
 
@@ -14,6 +14,7 @@ const Subscription = ({ sub }) => {
         <h3>Events subscribed to:</h3>
         <p>{eventString}</p>
       </div>
+      <i className="fas fa-trash-alt" onClick={handleClick}></i>
     </li>
   );
 };

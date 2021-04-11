@@ -26,6 +26,16 @@ const addSubscription = (newSubscription, callback) => {
     .catch((error) => console.log(error));
 };
 
+const deleteSubscription = (subId, callback) => {
+  const subEndpoint = `/api/v1/subs/${subId}`;
+
+  axios
+    .delete(subEndpoint)
+    .then(unwrapData)
+    .then(callback)
+    .catch((error) => console.log(error));
+};
+
 const sendMessage = (eventId, payload) => {
   const msgInfo = { eventId, payload };
 
@@ -36,4 +46,10 @@ const sendMessage = (eventId, payload) => {
     .catch((error) => console.log(error));
 };
 
-export default { getSubscriptions, addSubscription, sendMessage, getEvents };
+export default {
+  getSubscriptions,
+  addSubscription,
+  deleteSubscription,
+  sendMessage,
+  getEvents,
+};

@@ -5,7 +5,7 @@ const EventOption = ({ event, index, handleClick }) => {
     <li>
       <button
         type="button"
-        name="Button 1"
+        name={event.description}
         onClick={handleClick}
         value={event.id}
       >

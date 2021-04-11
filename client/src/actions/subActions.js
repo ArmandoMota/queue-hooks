@@ -38,3 +38,20 @@ export const getSubs = () => {
     });
   };
 };
+
+export const deleteSubSuccess = (id) => {
+  return { type: types.DELETE_SUB_SUCCESS, id };
+};
+
+export const deleteSubRequest = () => {
+  return { type: types.DELETE_SUB_REQUEST };
+};
+
+export const deleteSub = (subId) => {
+  return (dispatch) => {
+    dispatch(deleteSubRequest());
+    api.deleteSubscription(subId, () => {
+      dispatch(deleteSubSuccess(subId));
+    });
+  };
+};

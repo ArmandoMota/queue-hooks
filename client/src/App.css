@@ -82,6 +82,10 @@ input[type="text"] {
   margin-left: 20px;
 }
 
+#existing-endpoint-container i:hover {
+  cursor: pointer;
+}
+
 #existing-endpoint-container li {
   display: flex;
 }
