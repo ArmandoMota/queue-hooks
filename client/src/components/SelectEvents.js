@@ -27,7 +27,7 @@ const SelectEvents = ({ addToSubscriptions }) => {
 
   return (
     <div id="register-endpoint-container">
-      <h2>Register Subscription</h2>
+      <h2>New Subscription</h2>
       <form id="register-endpoint-form" onSubmit={handleNewSubscription}>
         <h3>
           Enter the endpoint you'd like us to send event notifications to:

@@ -23,5 +23,23 @@ const createSubscription = (req, res, next) => {
     .catch((error) => console.log(error));
 };
 
+const deleteSubscription = (req, res, next) => {
+  Subscription.findByIdAndRemove(req.params.id).then((err, doc) => {
+    console.log(err);
+    console.log(doc);
+    res.json(doc);
+  });
+};
+
+const deleteAllSubscriptions = (req, res, next) => {
+  Subscription.deleteMany({}).then((err, doc) => {
+    console.log(err);
+    console.log(doc);
+    res.json(doc);
+  });
+};
+
 exports.getSubscriptions = getSubscriptions;
 exports.createSubscription = createSubscription;
+exports.deleteSubscription = deleteSubscription;
+exports.deleteAllSubscriptions = deleteAllSubscriptions;
