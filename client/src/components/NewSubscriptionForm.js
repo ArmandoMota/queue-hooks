@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { createSub } from "../actions/subActions";
-import api from "../lib/ApiClient";
+import EventSelectOptions from "./EventSelectOptions";
 
-const SelectEvents = ({ addToSubscriptions }) => {
+const NewSubscriptionForm = ({ addToSubscriptions }) => {
   const [endpointUrl, setEndpointUrl] = useState("");
   const dispatch = useDispatch();
+
   const handleNewSubscription = (e) => {
     e.preventDefault();
     const parentForm = e.target;
@@ -40,49 +41,7 @@ const SelectEvents = ({ addToSubscriptions }) => {
           onChange={(e) => setEndpointUrl(e.target.value)}
           placeholder="https://yourwebsite.com/yourendpoint"
         />
-        <h3>Select which events you'd like us to notify you about:</h3>
-        <ul id="event-selection-list">
-          <li>
-            <label>
-              Event 1
-              <input
-                type="checkbox"
-                name="event1-checkbox"
-                value="6066490329bf119338d0c1e2"
-              />
-            </label>
-          </li>
-          <li>
-            <label>
-              Event 2
-              <input
-                type="checkbox"
-                name="event2-checkbox"
-                value="6066490629bf119338d0c1e3"
-              />
-            </label>
-          </li>
-          <li>
-            <label>
-              Event 3
-              <input
-                type="checkbox"
-                name="event3-checkbox"
-                value="6066490829bf119338d0c1e4"
-              />
-            </label>
-          </li>
-          <li>
-            <label>
-              Event 4
-              <input
-                type="checkbox"
-                name="event4-checkbox"
-                value="6066490b29bf119338d0c1e5"
-              />
-            </label>
-          </li>
-        </ul>
+        <EventSelectOptions />
         <h3>Optional Settings</h3>
         <ul>
           <li>
@@ -98,4 +57,4 @@ const SelectEvents = ({ addToSubscriptions }) => {
   );
 };
 
-export default SelectEvents;
+export default NewSubscriptionForm;

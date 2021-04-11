@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getSubs } from "./actions/subActions";
 import TriggerEvents from "./components/TriggerEvents";
-import SelectEvents from "./components/SelectEvents";
+import NewSubscriptionForm from "./components/NewSubscriptionForm";
 import Subscriptions from "./components/Subscriptions";
 
 function App() {
@@ -17,7 +17,7 @@ function App() {
   return (
     <>
       <TriggerEvents />
-      <SelectEvents />
+      <NewSubscriptionForm />
       <Subscriptions />
     </>
   );
