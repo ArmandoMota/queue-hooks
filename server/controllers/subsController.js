@@ -15,6 +15,9 @@ const createSubscription = (req, res, next) => {
       Subscription.findById(id)
         .populate("listeningFor")
         .then((sub) => {
+          // Dispatch test ping here
+          // Consider extracting response to sendSubscription function
+          // This would allow for another middleware that crafts and sends a test ping
           res.json({ sub });
         })
         .catch((error) => console.log(error));

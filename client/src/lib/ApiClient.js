@@ -2,6 +2,14 @@ import axios from "axios";
 
 const unwrapData = (response) => response.data;
 
+const getEvents = (callback) => {
+  axios
+    .get("/api/v1/events")
+    .then(unwrapData)
+    .then(callback)
+    .catch((error) => console.log(error));
+};
+
 const getSubscriptions = (callback) => {
   axios
     .get("/api/v1/subs")
@@ -28,4 +36,4 @@ const sendMessage = (eventId, payload) => {
     .catch((error) => console.log(error));
 };
 
-export default { getSubscriptions, addSubscription, sendMessage };
+export default { getSubscriptions, addSubscription, sendMessage, getEvents };

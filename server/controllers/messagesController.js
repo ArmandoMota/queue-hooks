@@ -18,7 +18,9 @@ const findSubscriptions = async (req, res, next) => {
 
   Subscription.find({})
     .then((subs) => {
+      console.log(subs);
       subs.forEach(({ url, listeningFor }) => {
+        console.log(req.msg.eventId);
         if (listeningFor.includes(req.msg.eventId)) {
           req.subscribers.push(url);
         }
@@ -31,42 +33,15 @@ const findSubscriptions = async (req, res, next) => {
 
 const sendMessage = async (req, res, next) => {
   console.log("sendMessage");
-
+  console.log(req.body);
   req.subscribers.forEach((url) => {
     console.log(`notifying ${url} of event ${req.msg.eventId}`);
 
-    const config = { headers: { "Content-Type": "application/json" } };
-    // attemptToSend(url, req.msg.payload, config, 0, 1);
     axios
-      .post(url, req.msg.payload, config)
+      .post(url, req.msg.payload)
       .then((response) => console.log(`confirmed receipt from ${url}`))
       .catch((error) => console.log(error));
   });
-};
-
-const attemptToSend = (url, payload, config, delay, retryCount) => {
-  axios
-    .post(url, payload, config)
-    .then((response) => console.log(`confirmed receipt from ${url}`))
-    .catch((error) => {
-      if (retryCount <= 5) {
-        if (retryCount < 5) {
-          console.log(
-            `Attempt #${retryCount} failed for event \"${payload.type}\" ` +
-              `and sender \"${url}\".  Trying again.`
-          );
-        } else {
-          console.log(
-            `Attempt #${retryCount} failed for event \"${payload.type}\" ` +
-              `and sender \"${url}\".  Last attempt.`
-          );
-        }
-
-        setTimeout(() => {
-          attemptToSend(url, payload, config, delay * 2 + 1, ++retryCount);
-        }, delay * 1000);
-      }
-    });
 };
 
 const getMessages = (req, res, next) => {
