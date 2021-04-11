@@ -15,7 +15,6 @@ const createSubscription = (req, res, next) => {
       Subscription.findById(id)
         .populate("listeningFor")
         .then((sub) => {
-          console.log(sub);
           res.json({ sub });
         })
         .catch((error) => console.log(error));
@@ -25,16 +24,12 @@ const createSubscription = (req, res, next) => {
 
 const deleteSubscription = (req, res, next) => {
   Subscription.findByIdAndRemove(req.params.id).then((err, doc) => {
-    console.log(err);
-    console.log(doc);
     res.json(doc);
   });
 };
 
 const deleteAllSubscriptions = (req, res, next) => {
   Subscription.deleteMany({}).then((err, doc) => {
-    console.log(err);
-    console.log(doc);
     res.json(doc);
   });
 };
