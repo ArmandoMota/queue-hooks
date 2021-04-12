@@ -21,6 +21,7 @@ const TriggerEvents = () => {
       type: e.target.name,
       msg: `${e.target.name} was triggered`,
     };
+
     api.sendMessage(eventId, payload);
   };
 
