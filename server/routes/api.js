@@ -6,27 +6,42 @@ const eventTypesController = require("../controllers/eventTypesController");
 const messagesController = require("../controllers/messagesController");
 const eventsController = require("../controllers/eventsController");
 
+const { validateApp } = require("../validators/validators");
+
 router.get("/apps", appsController.getApps);
 // router.get("/apps/:app_id", appsController.getApp);
 router.post("/apps", appsController.createApp);
-router.patch("/apps/:id", appsController.updateApp);
+router.patch("/apps/:app_id", validateApp, appsController.updateApp);
 // router.delete("/apps/:id", appsController.deleteApp);
 
-router.get("/apps/:app_id/event_types", eventTypesController.getEventTypes);
-// router.get("/apps/:app_id/event_types/:event_id", eventTypesController.getEventType);
-router.post("/apps/:app_id/event_types", eventTypesController.createEventType);
-// router.patch("/apps/:app_id/event_types/:event_id", eventTypesController.createEventType);
-// router.delete("/apps/:app_id/event_types/:event_id", eventTypesController.createEventType);
+router.get(
+  "/apps/:app_id/event_types",
+  validateApp,
+  eventTypesController.getEventTypes
+);
+// router.get("/apps/:app_id/event_types/:event_id", validateApp, eventTypesController.getEventType);
+router.post(
+  "/apps/:app_id/event_types",
+  validateApp,
+  eventTypesController.createEventType
+);
+// router.patch("/apps/:app_id/event_types/:event_id", validateApp, eventTypesController.createEventType);
+// router.delete("/apps/:app_id/event_types/:event_id", validateApp, eventTypesController.createEventType);
 
-router.get("/apps/:app_id/subs", subsController.getSubscriptions);
-// router.get("/apps/:app_id/subs/:sub_id", subsController.getSubscription);
-router.post("/apps/:app_id/subs", subsController.createSubscription);
-// router.patch("/apps/:app_id/subs/:sub_id", subsController.updateSubscription);
-// router.delete("/apps/:app_id/subs/:sub_id", subsController.deleteSubscription);
+router.get("/apps/:app_id/subs", validateApp, subsController.getSubscriptions);
+// router.get("/apps/:app_id/subs/:sub_id", validateApp, subsController.getSubscription);
+router.post(
+  "/apps/:app_id/subs",
+  validateApp,
+  subsController.createSubscription
+);
+// router.patch("/apps/:app_id/subs/:sub_id", validateApp, subsController.updateSubscription);
+// router.delete("/apps/:app_id/subs/:sub_id", validateApp, subsController.deleteSubscription);
 
-router.get("/apps/:app_id/msgs", messagesController.getMessages);
+router.get("/apps/:app_id/msgs", validateApp, messagesController.getMessages);
 router.post(
   "/apps/:app_id/msgs",
+  validateApp,
   eventsController.createEvent,
   subsController.getSubscriptionsByTopic,
   messagesController.createMessages

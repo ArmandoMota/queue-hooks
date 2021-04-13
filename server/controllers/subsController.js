@@ -1,7 +1,13 @@
 const Subscription = require("../models/subscription");
 const axios = require("axios");
+const { validationResult } = require("express-validator");
 
 const createSubscription = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   Subscription.create(req.body)
     .then(({ id }) => {
       Subscription.findById(id)
@@ -26,14 +32,17 @@ const pingNewEndpoint = async (subscription, app_id) => {
     timeout: 5000,
     maxRedirects: 0,
   };
-  const body = {
-    payload: "This is your first event!  Thank you for subscribing.",
-  };
 
+  const body = { msg: "Congrats on creating a new endpoint!" };
   await axios.post(subscription.url, body, config);
 };
 
 const getSubscriptions = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   Subscription.find({ app_id: req.params.app_id })
     .populate("event_types")
     .then((subs) => {

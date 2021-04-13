@@ -7,14 +7,14 @@ const App = require("./app");
 
 const MessageSchema = new Schema({
   app_id: { type: Schema.Types.ObjectId, ref: App },
+  subscription_id: { type: Schema.Types.ObjectId, ref: Subscription },
+  event_id: { type: Schema.Types.ObjectId, ref: Event },
   event_type: { type: Schema.Types.ObjectId, ref: EventType },
-  firstDelivery: Date,
-  latestDelivery: Date,
+  payload: Schema.Types.Mixed,
+  sentAt: Date,
+  deliveredAt: Date,
   deliveryAttempt: { type: Number, default: 1 },
   deliveryState: { type: Boolean, default: false },
-  subscriptionId: { type: Schema.Types.ObjectId, ref: Subscription },
-  eventId: { type: Schema.Types.ObjectId, ref: Event },
-  payload: Schema.Types.Mixed,
   requestData: Schema.Types.Mixed,
   responseData: Schema.Types.Mixed,
 });

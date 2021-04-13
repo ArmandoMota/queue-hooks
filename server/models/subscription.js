@@ -9,7 +9,7 @@ const SubscriptionSchema = new Schema({
   event_types: [{ type: Schema.Types.ObjectId, ref: EventType }],
   active: { type: Boolean, default: true },
   signingSecret: String,
-  authenticationId: String,
+  token: String,
   authenticationSecret: String,
   confirmation: Date,
 });
@@ -19,6 +19,7 @@ SubscriptionSchema.set("toJSON", {
     returnedObject.id = returnedObject._id;
     delete returnedObject._id;
     delete returnedObject.__v;
+    delete returnedObject.signingSecret;
   },
 });
 

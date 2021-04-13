@@ -1,8 +1,14 @@
 const Message = require("../models/message");
 const queue = require("./queueController");
 const crypto = require("crypto");
+const { validationResult } = require("express-validator");
 
 const getMessages = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   Message.find({ app_id: req.params.app_id })
     .then((msgs) => res.json({ msgs }))
     .catch((error) => console.log(error));
