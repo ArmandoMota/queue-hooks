@@ -10,19 +10,24 @@ const getSubscriptions = (req, res, next) => {
 };
 
 const createSubscription = (req, res, next) => {
+  console.log("Creating Sub");
   Subscription.create(req.body)
     .then(({ id }) => {
       Subscription.findById(id)
         .populate("listeningFor")
         .then((sub) => {
-          // Dispatch test ping here
-          // Consider extracting response to sendSubscription function
-          // This would allow for another middleware that crafts and sends a test ping
-          res.json({ sub });
+          req.sub = sub;
+          next();
         })
         .catch((error) => console.log(error));
     })
     .catch((error) => console.log(error));
+};
+
+const sendSubscription = (req, res, next) => {
+  console.log("Sending sub");
+  const sub = req.sub;
+  res.json({ sub });
 };
 
 const deleteSubscription = (req, res, next) => {
@@ -39,5 +44,6 @@ const deleteAllSubscriptions = (req, res, next) => {
 
 exports.getSubscriptions = getSubscriptions;
 exports.createSubscription = createSubscription;
+exports.sendSubscription = sendSubscription;
 exports.deleteSubscription = deleteSubscription;
 exports.deleteAllSubscriptions = deleteAllSubscriptions;

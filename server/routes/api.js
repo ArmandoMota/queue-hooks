@@ -5,11 +5,13 @@ const eventsController = require("../controllers/eventsController");
 const messagesController = require("../controllers/messagesController");
 
 router.get("/subs", subsController.getSubscriptions);
+
 router.post(
   "/subs",
   subsController.createSubscription,
-  messagesController.createMessage,
-  messagesController.sendMessage
+  messagesController.createTestMessage,
+  messagesController.sendTestMessage,
+  subsController.sendSubscription
 );
 router.delete("/subs/:id", subsController.deleteSubscription);
 router.delete("/subs", subsController.deleteAllSubscriptions);
