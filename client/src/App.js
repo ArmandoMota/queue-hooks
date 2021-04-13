@@ -6,16 +6,19 @@ import TriggerEvents from "./components/TriggerEvents";
 import SelectEvents from "./components/SelectEvents";
 import Subscriptions from "./components/Subscriptions";
 
+// this is hard-coded for testing
+const APP_ID = "6074c0d2f8bc834cf9fb5729";
+
 function App() {
   const [subscriptions, setSubscriptions] = useState([]);
-  const [topics, setTopics] = useState([]);
+  const [eventTypes, setEventTypes] = useState([]);
 
   useEffect(() => {
-    api.getSubscriptions(setSubscriptions);
+    api.getSubscriptions(APP_ID, setSubscriptions);
   }, []);
 
   useEffect(() => {
-    api.getTopics(setTopics);
+    api.getEventTypes(APP_ID, setEventTypes);
   }, []);
 
   const addToSubscriptions = (newSubscription) => {
@@ -24,8 +27,12 @@ function App() {
 
   return (
     <>
-      <TriggerEvents topics={topics} />
-      <SelectEvents addToSubscriptions={addToSubscriptions} topics={topics} />
+      <TriggerEvents eventTypes={eventTypes} app_id={APP_ID} />
+      <SelectEvents
+        addToSubscriptions={addToSubscriptions}
+        eventTypes={eventTypes}
+        app_id={APP_ID}
+      />
       <Subscriptions subscriptions={subscriptions} />
     </>
   );

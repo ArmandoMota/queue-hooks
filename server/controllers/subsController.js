@@ -5,53 +5,56 @@ const createSubscription = (req, res, next) => {
   Subscription.create(req.body)
     .then(({ id }) => {
       Subscription.findById(id)
-        .populate("topics")
+        .populate("event_types")
         .then((sub) => {
-          pingNewEndpoint(sub);
-          res.json({ sub });
+          pingNewEndpoint(sub, req.params.app_id);
+          res.json(sub);
         })
         .catch((error) => console.log(error));
     })
     .catch((error) => console.log(error));
 };
 
-const pingNewEndpoint = async (subscription) => {
+const pingNewEndpoint = async (subscription, app_id) => {
   const config = {
     headers: {
       "Content-Type": "application/json",
-      "x-team4hook-eventid": "ping",
+      "x-team4hook-app_id": app_id,
+      "x-team4hook-subscription_id": subscription._id,
+      "x-team4hook-event_type": "ping",
     },
     timeout: 5000,
     maxRedirects: 0,
   };
   const body = {
-    data: "This is your first event!  Thank you for subscribing.",
+    payload: "This is your first event!  Thank you for subscribing.",
   };
 
   await axios.post(subscription.url, body, config);
 };
 
 const getSubscriptions = (req, res, next) => {
-  Subscription.find({})
-    .populate("topics")
+  Subscription.find({ app_id: req.params.app_id })
+    .populate("event_types")
     .then((subs) => {
-      res.json({ subs });
+      res.json(subs);
     })
     .catch((error) => console.log(error));
 };
 
 const getSubscriptionsByTopic = (req, res, next) => {
-  Subscription.find({ topics: { $in: req.event.topic } }).then(
-    (subscriptions) => {
-      req.subscribers = subscriptions.map((sub) => ({
-        id: sub._id,
-        url: sub.url,
-        secret: sub.signingSecret,
-      }));
+  Subscription.find({
+    app_id: req.params.app_id,
+    event_types: { $in: req.event.event_type },
+  }).then((subscriptions) => {
+    req.subscribers = subscriptions.map((sub) => ({
+      id: sub._id,
+      url: sub.url,
+      secret: sub.signingSecret,
+    }));
 
-      next();
-    }
-  );
+    next();
+  });
 };
 
 exports.getSubscriptions = getSubscriptions;

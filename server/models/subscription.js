@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
-const Topic = require("./topic");
-
 const Schema = mongoose.Schema;
+const EventType = require("./eventType");
+const App = require("./app");
 
 const SubscriptionSchema = new Schema({
+  app_id: { type: Schema.Types.ObjectId, ref: App },
   url: { type: String, required: true },
-  topics: [{ type: Schema.Types.ObjectId, ref: Topic }],
+  event_types: [{ type: Schema.Types.ObjectId, ref: EventType }],
   active: { type: Boolean, default: true },
   signingSecret: String,
   authenticationId: String,

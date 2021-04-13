@@ -1,24 +1,25 @@
 import React from "react";
 import api from "../lib/ApiClient";
 
-const SelectEvents = ({ addToSubscriptions, topics }) => {
+const SelectEvents = ({ addToSubscriptions, eventTypes, app_id }) => {
   const handleNewSubscription = (e) => {
     e.preventDefault();
     const parentForm = e.target;
     const formInputs = Array.from(parentForm.elements);
-    const newSubscription = { topics: [] };
+    const newSubscription = { app_id, event_types: [] };
 
     formInputs.forEach((element) => {
       if (element.type === "text") {
         newSubscription.url = element.value;
       } else if (element.type === "checkbox" && element.checked) {
-        newSubscription.topics.push(element.value);
+        newSubscription.event_types.push(element.value);
       }
     });
 
-    api.addSubscription(newSubscription, (newSub) =>
+    api.addSubscription(app_id, newSubscription, (newSub) =>
       addToSubscriptions(newSub)
     );
+
     parentForm.reset();
   };
 
@@ -37,11 +38,15 @@ const SelectEvents = ({ addToSubscriptions, topics }) => {
         />
         <h3>Select which events you'd like us to notify you about:</h3>
         <ul id="event-selection-list">
-          {topics.map((topic) => (
+          {eventTypes.map((eventType) => (
             <li>
               <label>
-                {topic.name}
-                <input type="checkbox" name={topic.name} value={topic.id} />
+                {eventType.description}
+                <input
+                  type="checkbox"
+                  name={eventType.description}
+                  value={eventType.id}
+                />
               </label>
             </li>
           ))}

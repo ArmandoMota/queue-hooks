@@ -1,19 +1,19 @@
 const mongoose = require("mongoose");
-const Topic = require("./topic");
+const Schema = mongoose.Schema;
+const EventType = require("./eventType");
 const Subscription = require("./subscription");
 const Event = require("./event");
-
-const Schema = mongoose.Schema;
+const App = require("./app");
 
 const MessageSchema = new Schema({
-  topic: { type: Schema.Types.ObjectId, ref: Topic },
+  app_id: { type: Schema.Types.ObjectId, ref: App },
+  event_type: { type: Schema.Types.ObjectId, ref: EventType },
   firstDelivery: Date,
   latestDelivery: Date,
   deliveryAttempt: { type: Number, default: 1 },
   deliveryState: { type: Boolean, default: false },
   subscriptionId: { type: Schema.Types.ObjectId, ref: Subscription },
   eventId: { type: Schema.Types.ObjectId, ref: Event },
-  affectedResource: String,
   payload: Schema.Types.Mixed,
   requestData: Schema.Types.Mixed,
   responseData: Schema.Types.Mixed,

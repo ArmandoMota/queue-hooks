@@ -2,33 +2,33 @@ import axios from "axios";
 
 const unwrapData = (response) => response.data;
 
-const getSubscriptions = (callback) => {
+const getSubscriptions = (app_id, callback) => {
   axios
-    .get("/api/v1/subs")
+    .get(`/api/v1/apps/${app_id}/subs`)
     .then(unwrapData)
-    .then(({ subs }) => callback(subs))
+    .then((subs) => callback(subs))
     .catch((error) => console.log(error));
 };
 
-const addSubscription = (newSubscription, callback) => {
+const addSubscription = (app_id, newSubscription, callback) => {
   axios
-    .post("/api/v1/subs", newSubscription)
+    .post(`/api/v1/apps/${app_id}/subs`, newSubscription)
     .then(unwrapData)
-    .then(({ sub }) => callback(sub))
+    .then((sub) => callback(sub))
     .catch((error) => console.log(error));
 };
 
-const getTopics = (callback) => {
+const getEventTypes = (app_id, callback) => {
   axios
-    .get("/api/v1/topics")
+    .get(`/api/v1/apps/${app_id}/event_types`)
     .then(unwrapData)
-    .then(({ topics }) => callback(topics))
+    .then((eventTypes) => callback(eventTypes))
     .catch((error) => console.log(error));
 };
 
-const notifySubscribers = (newEvent) => {
+const notifySubscribers = (app_id, newEvent) => {
   axios
-    .post("/api/v1/msgs", newEvent)
+    .post(`/api/v1/apps/${app_id}/msgs`, newEvent)
     .then(unwrapData)
     .then((data) => console.log(data))
     .catch((error) => console.log(error));
@@ -38,5 +38,5 @@ export default {
   getSubscriptions,
   addSubscription,
   notifySubscribers,
-  getTopics,
+  getEventTypes,
 };

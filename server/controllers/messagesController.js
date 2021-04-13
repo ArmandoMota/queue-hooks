@@ -3,22 +3,18 @@ const queue = require("./queueController");
 const crypto = require("crypto");
 
 const getMessages = (req, res, next) => {
-  Message.find({})
+  Message.find({ app_id: req.params.app_id })
     .then((msgs) => res.json({ msgs }))
     .catch((error) => console.log(error));
 };
 
 const createMessages = (req, res, next) => {
-  console.log(`sending message to ${req.subscribers.length} subscriber(s)...`);
+  console.log(`Sending message to ${req.subscribers.length} subscriber(s)...`);
   const basicData = extractMsgData(req);
 
   req.subscribers.forEach(({ id, url, secret }) => {
-    const msgData = { ...basicData, subscriptionId: id };
-    Message.create(msgData)
-      .then((msg) => (msgData.id = msg._id))
-      .catch((error) => console.log(error));
+    const msgData = { ...basicData, subscription_id: id, url };
 
-    msgData.url = url;
     if (secret) {
       msgData.signature = calculateSignature(basicData.payload, secret);
     }
@@ -32,23 +28,14 @@ const createMessages = (req, res, next) => {
 };
 
 const extractMsgData = (req) => {
-  const basicData = {
-    topic: req.event.topic,
+  return {
+    app_id: req.params.app_id,
+    event_id: req.event.id,
+    event_type: req.event.event_type,
     deliveryAttempt: 1,
     deliveryState: false,
-    eventId: req.event.id,
-    affectedResource: req.event.affectedResource,
+    payload: req.event.payload,
   };
-
-  basicData.payload = {
-    ...req.event.payload,
-    topic: basicData.topic,
-    deliveryAttempt: basicData.deliveryAttempt,
-    eventId: basicData.eventId,
-    affectedResource: basicData.affectedResource,
-  };
-
-  return basicData;
 };
 
 const calculateSignature = (payload, secret) => {

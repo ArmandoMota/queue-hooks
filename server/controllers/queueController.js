@@ -23,88 +23,68 @@ const push = (rawEvent, callback) => {
 };
 
 const worker = async (msgData, callback) => {
-  if (msgData.deliveryAttempt === 1) {
-    const { url, signature, ...validData } = msgData;
-    const msgObject = await Message.create(validData);
-    msgData.id = msgObject._id;
-  }
-
   const timeout = calculateDelay(msgData);
-  setTimeout(() => sendMessage(msgData), timeout);
+
+  setTimeout(() => {
+    msgData.sentAt = new Date();
+    const { url, signature, ...validData } = msgData;
+
+    Message.create(validData)
+      .then((msg) => {
+        msgData.id = msg._id;
+        console.log(`Sending message ${msgData.id}...`);
+        sendMessage(msgData);
+      })
+      .catch((error) => console.log(error));
+  }, timeout);
 };
 
 const sendMessage = (msgData) => {
-  const config = { ...POST_CONFIG };
-  config.headers["X-Team4hook-EventId"] = msgData.topic;
+  const config = extractConfig(msgData);
 
-  if (msgData.signature) {
-    config.headers["X-Team4Hook-Signature"] = msgData.signature;
-  }
-
-  console.log(`Sending message ${msgData.id}...`);
   axios
     .post(msgData.url, msgData.payload, config)
     .then((res) => handleSuccessfulDelivery(msgData, res))
     .catch((res) => handleFailedDelivery(msgData, res));
 };
 
-const handleSuccessfulDelivery = (msgData, res) => {
+const handleSuccessfulDelivery = async (msgData, res) => {
   const { responseData, requestData } = extractRequestAndResponse(res);
   const newProps = {
     requestData,
     responseData,
-    latestDelivery: new Date(),
+    deliveredAt: new Date(),
     deliveryState: true,
   };
 
   console.log(`Message ${msgData.id} confirmed received`);
-  updateDatabaseOnSuccess(msgData, newProps);
-};
-
-const updateDatabaseOnSuccess = async (msgData, newProps) => {
-  if (msgData.deliveryAttempt === 1) {
-    newProps.firstDelivery = newProps.latestDelivery;
-  }
-
   await Message.findByIdAndUpdate(msgData.id, newProps, { new: true });
 };
 
 const handleFailedDelivery = (msgData, res) => {
   const { responseData, requestData } = extractRequestAndResponse(res);
-  const newProps = {
-    responseData,
-    requestData,
-    latestDelivery: new Date(),
-    deliveryAttempt: msgData.deliveryAttempt + 1,
-    payload: {
-      ...msgData.payload,
-      deliveryAttempt: msgData.deliveryAttempt + 1,
-    },
-  };
+  const newProps = { responseData, requestData };
 
   if (msgData.deliveryAttempt < MAX_RETRY_ATTEMPTS) {
     console.log(`Message ${msgData.id} failed, retrying...`);
   } else {
-    console.log(`Reached max of 5 retries for message ${msgData.id}.`);
+    console.log(
+      `Message ${msgData.id} failed.  Reached max of 5 retries for message ${msgData.id}.`
+    );
   }
 
   updateDatabaseOnFail(msgData, newProps);
 };
 
 const updateDatabaseOnFail = async (msgData, newProps) => {
-  if (msgData.deliveryAttempt === 1) {
-    newProps.firstDelivery = newProps.latestDelivery;
-  } else if (msgData.deliveryAttempt === MAX_RETRY_ATTEMPTS) {
-    delete newProps.deliveryAttempt;
-    delete newProps.payload;
-  }
-
-  await Message.findByIdAndUpdate(msgData.id, newProps, { new: true });
-
-  if (msgData.deliveryAttempt < MAX_RETRY_ATTEMPTS) {
-    msgData = { ...msgData, ...newProps };
-    queue.push(msgData, pushCallback);
-  }
+  Message.findByIdAndUpdate(msgData.id, newProps, { new: true })
+    .then(() => {
+      if (msgData.deliveryAttempt < MAX_RETRY_ATTEMPTS) {
+        msgData.deliveryAttempt += 1;
+        queue.push(msgData, pushCallback);
+      }
+    })
+    .catch((error) => console.log(error));
 };
 
 const pushCallback = (msgData) => {
@@ -125,6 +105,25 @@ const extractRequestAndResponse = (res) => {
   };
 
   return { responseData, requestData };
+};
+
+const extractConfig = (msgData) => {
+  const config = { ...POST_CONFIG };
+  config.headers = {
+    ...config.headers,
+    "x-team4hook-app_id": msgData.app_id,
+    "x-team4hook-subscription_id": msgData.subscription_id,
+    "x-team4hook-event_id": msgData.event_id,
+    "x-team4hook-event_type": msgData.event_type,
+    "x-team4hook-message_id": msgData.id,
+    "x-team4hook-delivery_attempt": msgData.deliveryAttempt,
+  };
+
+  if (msgData.signature) {
+    config.headers["x-team4Hook-signature"] = msgData.signature;
+  }
+
+  return config;
 };
 
 exports.initializePriorityQueue = initializePriorityQueue;

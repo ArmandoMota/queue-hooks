@@ -1,21 +1,23 @@
 import React from "react";
 import api from "../lib/ApiClient";
 
-const TriggerEvents = ({ topics }) => {
+const TriggerEvents = ({ eventTypes, app_id }) => {
   const handleNewHook = (e) => {
     e.preventDefault();
     const newEvent = {
-      topic: e.target.value,
-      affectedResource: e.target.name,
+      app_id,
+      event_type: e.target.value,
+      affected_resource: e.target.name,
       payload: {
-        msg: "Custom message for this event, specified by our customer",
+        msg:
+          "Custom payload for this event, specified by the customer.  Could be any JSON object",
       },
     };
 
-    api.notifySubscribers(newEvent);
+    api.notifySubscribers(app_id, newEvent);
   };
 
-  if (topics.length === 0) {
+  if (eventTypes.length === 0) {
     return null;
   }
 
@@ -23,15 +25,15 @@ const TriggerEvents = ({ topics }) => {
     <div id="hook-button-container">
       <h2>Trigger an event by pressing a button below:</h2>
       <ul id="event-creation-list">
-        {topics.map((topic) => (
+        {eventTypes.map((eventType) => (
           <li>
             <button
               type="button"
-              name={topic.name}
+              name={eventType.description}
               onClick={handleNewHook}
-              value={topic.id}
+              value={eventType.id}
             >
-              {topic.name}
+              {eventType.description}
             </button>
           </li>
         ))}

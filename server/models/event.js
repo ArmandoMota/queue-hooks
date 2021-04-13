@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
-const Topic = require("./topic");
-const Subscription = require("./subscription");
-
 const Schema = mongoose.Schema;
+const EventType = require("./eventType");
+const App = require("./app");
 
 const EventSchema = new Schema({
-  affectedResource: String,
+  app_id: { type: Schema.Types.ObjectId, ref: App },
+  affected_resource: String,
   payload: Schema.Types.Mixed,
   receivedAt: { type: Date, default: new Date() },
-  topic: { type: Schema.Types.ObjectId, ref: Topic },
+  event_type: { type: Schema.Types.ObjectId, ref: EventType },
 });
 
 EventSchema.set("toJSON", {
