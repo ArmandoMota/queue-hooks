@@ -26,7 +26,7 @@ const TriggerEvents = ({ eventTypes, app_id }) => {
       <h2>Trigger an event by pressing a button below:</h2>
       <ul id="event-creation-list">
         {eventTypes.map((eventType) => (
-          <li>
+          <li key={eventType.id}>
             <button
               type="button"
               name={eventType.description}

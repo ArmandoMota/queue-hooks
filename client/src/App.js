@@ -25,6 +25,10 @@ function App() {
     setSubscriptions([...subscriptions, newSubscription]);
   };
 
+  const removeSubscription = (id) => {
+    setSubscriptions(subscriptions.filter((sub) => sub.id !== id));
+  };
+
   return (
     <>
       <TriggerEvents eventTypes={eventTypes} app_id={APP_ID} />
@@ -33,7 +37,10 @@ function App() {
         eventTypes={eventTypes}
         app_id={APP_ID}
       />
-      <Subscriptions subscriptions={subscriptions} />
+      <Subscriptions
+        subscriptions={subscriptions}
+        removeSubscription={removeSubscription}
+      />
     </>
   );
 }

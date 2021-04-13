@@ -9,7 +9,11 @@ const SelectEvents = ({ addToSubscriptions, eventTypes, app_id }) => {
     const newSubscription = { app_id, event_types: [] };
 
     formInputs.forEach((element) => {
-      if (element.type === "text") {
+      if (element.name === "secret" && element.value !== "") {
+        console.log("secret", element.value);
+        newSubscription.signingSecret = element.value;
+      } else if (element.name === "endpoint") {
+        console.log("endpoint", element.value);
         newSubscription.url = element.value;
       } else if (element.type === "checkbox" && element.checked) {
         newSubscription.event_types.push(element.value);
@@ -36,10 +40,12 @@ const SelectEvents = ({ addToSubscriptions, eventTypes, app_id }) => {
           name="endpoint"
           placeholder="https://yourwebsite.com/yourendpoint"
         />
+        <h3>Enter the secret you'd like to use (optional):</h3>
+        <input type="text" id="secret" name="secret" />
         <h3>Select which events you'd like us to notify you about:</h3>
         <ul id="event-selection-list">
           {eventTypes.map((eventType) => (
-            <li>
+            <li key={eventType.id}>
               <label>
                 {eventType.description}
                 <input

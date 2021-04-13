@@ -1,8 +1,13 @@
 import React from "react";
+import api from "../lib/ApiClient";
 
-const Subscription = ({ sub }) => {
+const Subscription = ({ sub, removeSubscription }) => {
   const eventTypes = sub.event_types.map((eventType) => eventType.description);
   const eventString = eventTypes.join(", ") || "";
+
+  const handleDelete = () => {
+    api.deleteSubscription(sub.app_id, sub.id, removeSubscription);
+  };
 
   return (
     <li>
@@ -13,6 +18,11 @@ const Subscription = ({ sub }) => {
       <div htmlclass="events-followed">
         <h3>Events subscribed to:</h3>
         <p>{eventString}</p>
+      </div>
+      <div>
+        <button type="button" onClick={handleDelete}>
+          Delete
+        </button>
       </div>
     </li>
   );

@@ -1,5 +1,7 @@
 const { param } = require("express-validator");
 const App = require("../models/app");
+const EventType = require("../models/eventType");
+const Sub = require("../models/subscription");
 
 const validateApp = param("app_id")
   .exists()

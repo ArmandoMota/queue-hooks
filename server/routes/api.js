@@ -5,8 +5,10 @@ const subsController = require("../controllers/subsController");
 const eventTypesController = require("../controllers/eventTypesController");
 const messagesController = require("../controllers/messagesController");
 const eventsController = require("../controllers/eventsController");
-
-const { validateApp } = require("../validators/validators");
+const {
+  validateApp,
+  validateSubscription,
+} = require("../validators/validators");
 
 router.get("/apps", appsController.getApps);
 // router.get("/apps/:app_id", appsController.getApp);
@@ -36,7 +38,12 @@ router.post(
   subsController.createSubscription
 );
 // router.patch("/apps/:app_id/subs/:sub_id", validateApp, subsController.updateSubscription);
-// router.delete("/apps/:app_id/subs/:sub_id", validateApp, subsController.deleteSubscription);
+router.delete(
+  "/apps/:app_id/subs/:sub_id",
+  validateApp,
+  validateSubscription,
+  subsController.deleteSubscription
+);
 
 router.get("/apps/:app_id/msgs", validateApp, messagesController.getMessages);
 router.post(

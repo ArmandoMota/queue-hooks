@@ -18,6 +18,13 @@ const addSubscription = (app_id, newSubscription, callback) => {
     .catch((error) => console.log(error));
 };
 
+const deleteSubscription = (app_id, subscription_id, callback) => {
+  axios
+    .delete(`/api/v1/apps/${app_id}/subs/${subscription_id}`)
+    .then(() => callback(subscription_id))
+    .catch((error) => console.log(error));
+};
+
 const getEventTypes = (app_id, callback) => {
   axios
     .get(`/api/v1/apps/${app_id}/event_types`)
@@ -37,6 +44,7 @@ const notifySubscribers = (app_id, newEvent) => {
 export default {
   getSubscriptions,
   addSubscription,
+  deleteSubscription,
   notifySubscribers,
   getEventTypes,
 };

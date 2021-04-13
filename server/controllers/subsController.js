@@ -2,23 +2,22 @@ const Subscription = require("../models/subscription");
 const axios = require("axios");
 const { validationResult } = require("express-validator");
 
-const createSubscription = (req, res, next) => {
+const createSubscription = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  Subscription.create(req.body)
-    .then(({ id }) => {
-      Subscription.findById(id)
-        .populate("event_types")
-        .then((sub) => {
-          pingNewEndpoint(sub, req.params.app_id);
-          res.json(sub);
-        })
-        .catch((error) => console.log(error));
-    })
-    .catch((error) => console.log(error));
+  try {
+    const { id } = await Subscription.create(req.body);
+    const subscription = await Subscription.findById(id).populate(
+      "event_types"
+    );
+    await pingNewEndpoint(subscription, req.params.app_id);
+    res.json(subscription);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const pingNewEndpoint = async (subscription, app_id) => {
@@ -33,8 +32,12 @@ const pingNewEndpoint = async (subscription, app_id) => {
     maxRedirects: 0,
   };
 
-  const body = { msg: "Congrats on creating a new endpoint!" };
-  await axios.post(subscription.url, body, config);
+  try {
+    const body = { msg: "Congrats on creating a new endpoint!" };
+    await axios.post(subscription.url, body, config);
+  } catch (error) {
+    console.log("Could not ping new endpoint.  Endpoint still created.");
+  }
 };
 
 const getSubscriptions = (req, res, next) => {
@@ -66,6 +69,19 @@ const getSubscriptionsByTopic = (req, res, next) => {
   });
 };
 
+const deleteSubscription = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  console.log("deleting subscription: ", req.params.sub_id);
+  Subscription.findByIdAndDelete(req.params.sub_id)
+    .then(() => res.status(204).send())
+    .catch((error) => console.log(error));
+};
+
 exports.getSubscriptions = getSubscriptions;
 exports.getSubscriptionsByTopic = getSubscriptionsByTopic;
 exports.createSubscription = createSubscription;
+exports.deleteSubscription = deleteSubscription;
