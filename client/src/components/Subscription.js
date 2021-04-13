@@ -10,14 +10,18 @@ const Subscription = ({ sub, removeSubscription }) => {
   };
 
   return (
-    <li>
-      <div htmlclass="url">
-        <h3>Url:</h3>
-        <p>{sub.url}</p>
-      </div>
-      <div htmlclass="events-followed">
-        <h3>Events subscribed to:</h3>
-        <p>{eventString}</p>
+    <li className="subscription-container">
+      <div className="subscription-details">
+        <ul className="subscription-details-container">
+          <li>
+            <h3>Url:</h3>
+            <p>{sub.url}</p>
+          </li>
+          <li>
+            <h3>Subscribed to:</h3>
+            <p>{eventString}</p>
+          </li>
+        </ul>
       </div>
       <div>
         <button type="button" onClick={handleDelete}>

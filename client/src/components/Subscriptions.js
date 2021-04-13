@@ -5,7 +5,7 @@ const Subscriptions = ({ subscriptions, removeSubscription }) => {
   return (
     <div id="existing-endpoint-container">
       <h2>Registered Subscriptions</h2>
-      <ul>
+      <ul className="endpoint-list-container">
         {subscriptions.map((sub) => (
           <Subscription
             key={sub.id}
