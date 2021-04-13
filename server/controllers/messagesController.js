@@ -3,10 +3,14 @@ const Message = require("../models/message");
 const Subscription = require("../models/subscription");
 
 const async = require("async");
+
 const q = async.queue(async (job) => {
-  axios.post(job.url, job.data).then((response) => {
-    console.log(`Sent message to ${job.url}. Status: ${response.status}`);
-  });
+  axios
+    .post(job.url, job.data)
+    .then((response) => {
+      console.log(`Sent message to ${job.url}. Status: ${response.status}`);
+    })
+    .catch((err) => console.error(err.message));
 });
 
 const createMessage = (req, res, next) => {
@@ -56,27 +60,19 @@ const findSubscriptions = (req, res, next) => {
 
 const sendMessage = (req, res, next) => {
   console.log("sendMessage");
-  console.log(req.body);
+
   req.subscribers.forEach((url) => {
     console.log(`notifying ${url} of event ${req.msg.eventId}`);
 
-    axios
-      .post(url, req.msg.payload)
-      .then((response) => console.log(`confirmed receipt from ${url}`))
-      .catch((error) => console.log(error));
+    q.push({ url, data: req.msg.payload });
   });
+
+  res.status(202).json(req.msg);
 };
 
 const sendTestMessage = (req, res, next) => {
   console.log("sendTestMessage");
-  // req.msg is a mongoose object (document),
-  // meaning you can invoke toJSON directly on it
-  // to achieve the format defined in the schema.
-  // This also is invoked by JSON.stringify,
-  // and potentially res.json(),
-  // so consider testing
   q.push({ url: req.sub.url, data: req.msg.payload });
-  // console.log(req.msg.toJSON());
 
   next();
 };

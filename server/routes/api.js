@@ -13,6 +13,7 @@ router.post(
   messagesController.sendTestMessage,
   subsController.sendSubscription
 );
+
 router.delete("/subs/:id", subsController.deleteSubscription);
 router.delete("/subs", subsController.deleteAllSubscriptions);
 
