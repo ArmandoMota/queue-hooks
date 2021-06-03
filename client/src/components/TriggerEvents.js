@@ -1,38 +1,42 @@
-import React from 'react';
-import api from '../lib/ApiClient';
+import React from "react";
+import api from "../lib/ApiClient";
 
-const TriggerEvents = () => {
-  
+const TriggerEvents = ({ eventTypes, app_id }) => {
   const handleNewHook = (e) => {
     e.preventDefault();
-    const eventId = e.target.value;
-    const payload = {
-      type: e.target.name,
-      msg: `${e.target.name} was triggered`,
+    const newEvent = {
+      app_id,
+      event_type: e.target.value,
+      affected_resource: e.target.name,
+      payload: {
+        msg:
+          "Custom payload for this event, specified by the customer.  Could be any JSON object",
+      },
     };
-    api.sendMessage(eventId, payload);
+
+    api.notifySubscribers(app_id, newEvent);
   };
+
+  if (eventTypes.length === 0) {
+    return null;
+  }
 
   return (
     <div id="hook-button-container">
       <h2>Trigger an event by pressing a button below:</h2>
       <ul id="event-creation-list">
-        <li>
-          <button type="button" name="Button 1" onClick={handleNewHook}
-            value="6063c2a4d0eda700b38638ae">Event 1</button>
-        </li>
-        <li>
-          <button type="button" name="Button 2" onClick={handleNewHook}
-            value="6063c38fbca40e010c6e0d6a">Event 2</button>
-        </li>
-        <li>
-          <button type="button" name="Button 3" onClick={handleNewHook}
-            value="6063c3caab1a100140cda4c8">Event 3</button>
-        </li>
-        <li>
-          <button type="button" name="Button 4" onClick={handleNewHook}
-            value="6063c3ceab1a100140cda4c9">Event 4</button>
-        </li>
+        {eventTypes.map((eventType) => (
+          <li key={eventType.id}>
+            <button
+              type="button"
+              name={eventType.description}
+              onClick={handleNewHook}
+              value={eventType.id}
+            >
+              {eventType.description}
+            </button>
+          </li>
+        ))}
       </ul>
     </div>
   );

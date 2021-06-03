@@ -3,7 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const routes = require("./routes/api");
 require("dotenv").config();
-
+const queue = require("./controllers/queueController");
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -28,4 +28,5 @@ app.use("/api/v1", routes);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+  queue.initializePriorityQueue();
 });
