@@ -1,4 +1,4 @@
-#Overview
+# Overview
 
 This app comes with two pieces:
 
@@ -10,16 +10,16 @@ The frontend is mainly for testing and demo purposes. The backend, however, can
 be used as a standalone webhook provider service and can be integrated into an
 existing app.
 
-#Setup
+# Setup
 
 1. Download
-2. Run npm install in both client and server folders
+2. Run `npm install` in both client and server folders
 3. Add a `.env` file to the server folder, and add two properties: PORT (which
    should be 3001 unless you'd like to change some other settings), and DB
    (which needs to be a MongoDB URL to a MongoDB Atlas database).
 4. Start the webhook service by running `npm run dev` inside the server folder.
 
-#Features
+# Features
 
 - This webhook service uses a queue to concurrently process incoming events as
   well as retries
