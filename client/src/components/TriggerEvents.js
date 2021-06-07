@@ -1,5 +1,8 @@
 import React from "react";
 import api from "../lib/ApiClient";
+import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
 
 const TriggerEvents = ({ eventTypes, app_id }) => {
   const handleNewHook = (e) => {
@@ -22,23 +25,24 @@ const TriggerEvents = ({ eventTypes, app_id }) => {
   }
 
   return (
-    <div id="hook-button-container">
-      <h2>Trigger an event by pressing a button below:</h2>
-      <ul id="event-creation-list">
-        {eventTypes.map((eventType) => (
-          <li key={eventType.id}>
-            <button
-              type="button"
-              name={eventType.description}
-              onClick={handleNewHook}
-              value={eventType.id}
-            >
-              {eventType.description}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Container fluid>
+      <Row><h2>Trigger an event by pressing a button below:</h2></Row>
+      <Row>
+        <ul id="event-button-container">
+          {eventTypes.map((eventType) => (
+            <li key={eventType.id}>
+              <Button
+                name={eventType.description}
+                onClick={handleNewHook}
+                value={eventType.id}
+              >
+                {eventType.description}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </Row>
+    </Container>
   );
 };
 
